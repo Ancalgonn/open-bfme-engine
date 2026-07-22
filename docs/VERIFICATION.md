@@ -1,12 +1,5 @@
 # OpenBFME verification contract
 
-> **Owner:** Integration owner
-> **Owns:** Gate ordering, focused versus final checks, oracle approval, deterministic evidence, performance qualification, and completion declarations.
-> **Does not own:** Product scope, implementation design, source conversion rules, release licensing decisions, or worker task assignment.
-> **Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-> **Update trigger:** A milestone definition, gate, oracle recipe, evidence schema, benchmark, or release-blocking invariant changes.
-> **Validation:** The current milestone's final integration-owner command and its identity-bound generated evidence.
-
 ## Evidence doctrine
 
 Compilation, asset presence, parsed INI values and passing helper assertions are not

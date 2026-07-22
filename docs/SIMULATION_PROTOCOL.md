@@ -1,12 +1,5 @@
 # OpenBFME deterministic simulation protocol
 
-> **Owner:** Simulation and networking integration owner
-> **Owns:** Authoritative state, numeric rules, ticks, commands, ordering, RNG, digests, checkpoints, replay, reconnect, and lockstep contracts.
-> **Does not own:** Godot presentation, local input bindings, content conversion, visual parity, matchmaking, or mod authoring UX.
-> **Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-> **Update trigger:** An authoritative data type, command, cadence, serialization, hashing, recovery, or compatibility rule changes.
-> **Validation:** Language-independent command/state traces, cross-process replay digests, and deterministic network recovery scenarios defined in `VERIFICATION.md`.
-
 ## Implementation status
 
 The following production decisions are approved but **not yet implemented as the sole

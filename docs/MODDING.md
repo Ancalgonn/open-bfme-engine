@@ -1,12 +1,5 @@
 # OpenBFME modding contract
 
-> **Owner:** Content/mod API integration owner
-> **Owns:** Mod manifests, dependency/load order, override rules, simulation compatibility, presentation overrides, validation, and authoring boundaries.
-> **Does not own:** Retail extraction, authoritative simulation internals, public marketplace services, or legal approval for third-party content.
-> **Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-> **Update trigger:** A pack category, manifest field, dependency rule, override rule, hash boundary, validation rule, or authoring workflow changes.
-> **Validation:** `python tools/check-product-contracts.py --check`; pack-level validation remains unimplemented and is required before community content can load.
-
 ## Status and lanes
 
 OpenBFME currently has a loose legacy pack loader for repository-authored and user

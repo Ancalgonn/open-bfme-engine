@@ -4,14 +4,14 @@ This milestone follows the project owner's required order: question requirements
 delete unnecessary scope, simplify what remains, accelerate its feedback cycle, and
 automate only the resulting proven process.
 
-## Accountable product requirements
+## Requirements
 
-| ID | Accountable owner | Requirement | Acceptance |
-|---|---|---|---|
-| `MPMAP-P1` | Jonathan, project owner | Support the official BFME2 1.06 multiplayer/skirmish map corpus. Online networking is not included. | Corpus membership comes from the retail registry and exact catalog resolution, not filename guessing. |
-| `MPMAP-P2` | Jonathan, project owner | Convert every shipped map in that frozen corpus into a working OpenBFME map. | Every selected map deterministically supplies terrain, water, starts, required objects, passability, buildability, navigation, and standard skirmish completion behavior. |
-| `MPMAP-P3` | Jonathan, project owner | Treat reliability as 100% coverage of the frozen corpus, not arbitrary or modified maps. | A missing required feature fails the corpus gate with a stable diagnosis; it is never silently dropped or substituted. |
-| `MPMAP-P4` | Jonathan, project owner | Apply question/delete/simplify/accelerate/automate in that order. | No generalized converter subsystem is built until the census proves the corpus requires it. |
+| ID | Requirement | Acceptance |
+|---|---|---|
+| `MPMAP-P1` | Support the official BFME2 1.06 multiplayer and skirmish maps. Online networking is not included. | Map membership comes from the retail registry and exact catalog resolution, not filename guessing. |
+| `MPMAP-P2` | Convert every shipped map in that set into a working OpenBFME map. | Every selected map supplies terrain, water, starts, required objects, passability, buildability, navigation, and normal skirmish completion behavior. |
+| `MPMAP-P3` | Cover the complete shipped map set rather than arbitrary or modified maps. | Missing required features produce a clear error instead of being silently dropped or replaced. |
+| `MPMAP-P4` | Build shared conversion support only when the map set requires it. | The converter avoids unnecessary systems and per-map special cases. |
 
 Repository safety and architecture constraints remain mandatory, but their source files
 do not name a human owner. This document does not invent one. Retail bytes remain under

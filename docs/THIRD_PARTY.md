@@ -1,12 +1,5 @@
 # OpenBFME third-party and content-source ledger
 
-> **Owner:** Release and provenance integration owner
-> **Owns:** Third-party source, purpose, license, integration form, pin authority, notices, and donor-use record.
-> **Does not own:** Legal advice, retail-content redistribution permission, tool bootstrap implementation, or current selected-pack identity.
-> **Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-> **Update trigger:** A third-party source, version, license, integration form, shipped file, or provenance authority changes.
-> **Validation:** Private tool manifest/attestation, release provenance manifest, license-notice audit, and code-only export scan.
-
 This ledger records engineering provenance; it is not a legal opinion. Exact executable,
 tree and selected-package digests belong in generated tool/provenance manifests or
 `STATUS.md`, not copied into this document.

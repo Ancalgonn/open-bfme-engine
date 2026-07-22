@@ -1,10 +1,3 @@
-Owner: Integration owner
-Owns: The parity evidence model, completeness-claim rules, and human-readable interpretation of generated compatibility reports.
-Does not own: Hand-maintained content totals, current gate results, importer implementation, or product architecture.
-Last verified commit: `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-Update trigger: Scope policy, discovery rules, evidence lanes, staleness rules, or completeness criteria change.
-Validation: `python tools/check-product-contracts.py --check`; once implemented, the private report generator must also reject unclassified, unresolved, stale, or unevidenced required rows.
-
 # BFME2 1.06 skirmish parity
 
 ## What parity means
