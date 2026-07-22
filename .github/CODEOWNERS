@@ -1,0 +1,8 @@
+* @Ancalgonn
+
+# Publication-sensitive boundaries
+/.github/ @Ancalgonn
+/contracts/ @Ancalgonn
+/docs/legal_assets.md @Ancalgonn
+/SECURITY.md @Ancalgonn
+/tools/export-scan.ps1 @Ancalgonn

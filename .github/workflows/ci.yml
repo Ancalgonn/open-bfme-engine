@@ -1,0 +1,39 @@
+name: Public CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  publication-boundary:
+    name: Publication boundary
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Test export scanner
+        shell: powershell
+        run: ./tools/test-export-scan.ps1
+      - name: Scan public game tree
+        shell: powershell
+        run: ./tools/export-scan.ps1 -Root game
+
+  launcher-protocol:
+    name: Launcher protocol
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: tools/bfme-launcher-mcp
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tools/bfme-launcher-mcp/package-lock.json
+      - run: npm.cmd ci
+      - name: Test environment-independent protocol handshake
+        run: node --test test/raw-protocol.test.mjs

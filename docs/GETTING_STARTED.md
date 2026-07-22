@@ -4,12 +4,6 @@ OpenBFME is currently a Windows-first developer project. There is no supported
 installer or public binary release yet. Expect rough edges and read this guide
 before starting the private retail import.
 
-> **Documentation-preview notice:** the public GitHub repository does not yet
-> contain the engine/importer source required by these commands. This guide is
-> published so contributors can review the intended workflow before the clean
-> code snapshot is approved. Do not expect the documentation-only checkout to
-> run the game.
-
 ## What you need
 
 - Windows 10 or 11.
@@ -48,9 +42,8 @@ PowerShell equivalent:
 $env:OPENBFME_GODOT = 'C:\Tools\Godot\Godot_v4.7-stable_win64.exe'
 ```
 
-The current scripts still contain maintainer-machine fallback paths. Setting the
-environment variable explicitly avoids those fallbacks until portable discovery
-is completed.
+Setting the environment variable explicitly makes the selected Godot binary
+unambiguous.
 
 ## 3. Run the doctor
 
@@ -80,15 +73,6 @@ importer will:
 
 The first build can be lengthy. Verified cache and conversion work is designed
 to be resumable. Do not copy or share the resulting `.private` directory.
-
-An experimental graphical entry point also exists:
-
-```bat
-import_gui.bat
-```
-
-The command-line importer remains the clearer diagnostic path while the GUI is
-being hardened.
 
 ## 5. Launch the current slice
 

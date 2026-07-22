@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node src/server.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/protocol.test.mjs test/raw-protocol.test.mjs"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.26.0"
