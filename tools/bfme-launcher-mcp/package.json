@@ -12,6 +12,6 @@
     "test": "node --test test/protocol.test.mjs test/raw-protocol.test.mjs"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "1.26.0"
+    "@modelcontextprotocol/sdk": "1.29.0"
   }
 }
