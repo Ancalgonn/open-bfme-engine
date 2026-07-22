@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible OpenBFME defect without sharing retail content.
+title: "[Bug]: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not attach retail assets, converted packs, original-game captures, credentials, or unsanitized logs. Report security issues through the repository's private security reporting page.
+  - type: input
+    id: revision
+    attributes:
+      label: Version or commit
+      description: The release, branch, or full commit hash where you observed the problem.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Importer, Runtime or gameplay, UI, Audio or presentation, Modding, Documentation, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Give the smallest repeatable sequence using sanitized paths and project-authored data where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized diagnostics
+      description: Paste only the smallest relevant log excerpt after removing personal paths and private content.
+      render: text
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Content boundary
+      options:
+        - label: I have not included retail assets, converted packs, original-game captures, credentials, or personal data.
+          required: true

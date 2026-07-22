@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Ancalgonn/open-bfme-engine/security/advisories/new
+    about: Report sensitive security issues privately.
+  - name: Setup and contribution guide
+    url: https://github.com/Ancalgonn/open-bfme-engine/blob/main/CONTRIBUTING.md
+    about: Read the contribution and content-boundary rules before opening an issue.
