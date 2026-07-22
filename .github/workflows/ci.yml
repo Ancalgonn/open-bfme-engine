@@ -35,4 +35,5 @@ jobs:
           cache: npm
           cache-dependency-path: tools/bfme-launcher-mcp/package-lock.json
       - run: npm.cmd ci
-      - run: npm.cmd test
+      - name: Test environment-independent protocol handshake
+        run: node --test test/raw-protocol.test.mjs
