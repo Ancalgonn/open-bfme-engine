@@ -1,70 +1,45 @@
-# OpenBFME product direction
+# Project direction
 
-**Owner:** Jonathan, project owner
-**Owns:** stable target, scope ladder, parity definition, and non-goals
-**Does not own:** current hashes, gate results, task queue, or implementation detail
-**Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-**Update trigger:** the product target or scope changes
-**Validation:** `contracts/bfme2-106-product-scope.json`
+OpenBFME aims to recreate BFME2 1.06 skirmish play in a modern, open-source,
+moddable engine.
 
-## North star
+Players provide their own legally acquired copy of BFME2. OpenBFME converts the
+required content locally and does not distribute original or converted game
+assets.
 
-Create a modern, independently distributed and easily moddable RTS engine in
-Godot that reproduces BFME2 1.06 skirmish play through measured
-retail/original-game evidence.
+## Scope
 
-The compatibility build uses locally converted content from a user-owned retail
-installation. Retail and converted retail payloads stay under `.private`. A later
-public distribution contains project-authored code and legal-safe fixtures only.
+| Goal | Status |
+|---|---|
+| Men versus Men on Fords of Isen II | In progress |
+| Full Men faction on the selected maps | In progress |
+| All six BFME2 factions and skirmish systems | In progress |
+| Self-hosted multiplayer for up to eight players | Not started |
+| Replays, observers, Create-a-Hero, and map tools | Not started |
+| Accessibility and modern release tools | Not started |
 
-## Scope ladder
+## Compatibility target
 
-1. Complete and freeze Men versus Men on Fords of Isen II.
-2. Complete the full Men faction, including every BFME2 1.06 Men hero, on the
-   selected five-map oracle set.
-3. Complete all six BFME2 factions, Ring mechanics, naval gameplay, neutral
-   objects, and official skirmish/multiplayer maps.
-4. Ship self-hosted local, listen, and dedicated-server play for up to eight
-   players using deterministic lockstep.
-5. Complete Create-a-Hero, the skirmish shell, saves, replays, observers, and
-   custom-map/scenario tooling.
-6. Add modern accessibility, HD presentation packs, mod management, safe mode,
-   diagnostics, and rollback updates without changing the parity profile.
+OpenBFME targets BFME2 version 1.06. Gameplay is compared with the original game
+where possible; having a file or model available does not mean the feature is
+finished.
 
-RotWK is a separate future overlay and cannot change BFME2 1.06 evidence.
+## Not in scope
 
-## Meaning of parity
+- The Good and Evil campaigns
+- Campaign maps and scripting
+- War of the Ring
+- Rise of the Witch-king support during the BFME2 phase
+- Ranked services or a mandatory online account
 
-"Near 1:1" means every included capability is discovered from the effective
-BFME2 1.06 source corpus and has the required source, conversion, runtime,
-simulation, presentation, oracle, and reliability evidence.
+## Long-term technical direction
 
-INI presence and converted-asset counts are not parity. Unknown, ambiguous,
-unsupported, substituted, or unclassified requirements fail closed.
+- Godot for presentation, input, interface, audio, and desktop integration
+- A deterministic simulation suitable for replays and multiplayer
+- Self-hosted local, listen-server, and dedicated-server play
+- Up to eight players
+- Separate versioning for gameplay mods and presentation mods
+- No retail or converted retail assets in the repository or public downloads
 
-## Permanent product constraints
-
-- Eight players maximum.
-- Godot owns presentation, input, UI, audio, and desktop integration.
-- Pure C# owns deterministic authoritative simulation.
-- Production simulation targets 30 Hz; presentation remains render-rate independent.
-- Multiplayer is server-refereed deterministic lockstep and self-hostable.
-- No Steam, ranked-service, or mandatory-account dependency.
-- Gameplay and presentation mods are versioned and hashed separately.
-- Private parity never silently uses synthetic or generic replacement art.
-- The Good and Evil campaigns, campaign maps and scripting, and War of the Ring
-  are outside the OpenBFME product scope. They are not later roadmap promises.
-
-## Active milestone
-
-The binary active contract is [docs/MILESTONE_CURRENT.md](docs/MILESTONE_CURRENT.md).
-Current evidence and blockers live only in [STATUS.md](STATUS.md).
-
-## Non-goals before M2 acceptance
-
-- New synthetic proof-stage features.
-- Multiplayer or RotWK implementation.
-- Campaign or War of the Ring implementation at any milestone.
-- Broad importer, presentation, or architecture refactors.
-- Public-release automation beyond containment checks.
-- Declaring completion without the identity-bound oracle and reliability gate.
+See [PLAN.md](PLAN.md) for the development order and [STATUS.md](STATUS.md) for
+current progress.

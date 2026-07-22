@@ -1,12 +1,5 @@
 # OpenBFME release and distribution policy
 
-> **Owner:** Release integration owner
-> **Owns:** Private-content containment, code-only export, client/importer/server packaging, release provenance, update/rollback, and distribution prerequisites.
-> **Does not own:** Legal advice, gameplay parity approval, mod licensing decisions for third parties, or network simulation design.
-> **Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-> **Update trigger:** A package boundary, export scan, updater, supported platform, redistribution rule, or release prerequisite changes.
-> **Validation:** Code-only export scan, provenance manifest audit, clean-machine bootstrap, and package-specific smoke tests.
-
 ## Status
 
 OpenBFME is currently a private compatibility build, not a public retail-content

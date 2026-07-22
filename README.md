@@ -23,10 +23,8 @@
 > locally on your computer.
 
 > [!NOTE]
-> The public GitHub repository is currently a documentation preview. Engine,
-> importer, and runtime source will follow only after the active rewrite and a
-> clean code-export review. The commands below describe the developer workflow
-> but cannot be used from the documentation-only snapshot by itself.
+> OpenBFME is an early development project. Expect unfinished features, bugs,
+> and breaking changes.
 
 ## What is OpenBFME?
 
@@ -44,49 +42,26 @@ The importer understands BFME2's source formats; the game runtime loads a
 versioned pack generated privately on the user's machine. Proprietary retail
 content stays outside Git and outside public releases.
 
-## What the recent code audit found
+## Current state
 
-The development tree is much broader than the original one-map prototype. Kimi's
-UI rewrite is currently changing this surface, so the list below describes the
-most recent audit rather than a frozen release identity:
+OpenBFME can import BFME2 data and run an early skirmish experience in Godot.
+Men versus Men on Fords of Isen II is the most complete part of the project.
+Other factions and maps are under active development and are not yet ready for
+normal play.
 
-- a skirmish shell modeled on BFME2, with a main menu, setup screen, persistent graphics/audio
-  options, six faction choices, five map choices, colors, starting positions,
-  starting resources, and command-point rules;
-- local conversion and runtime manifests for Men, Elves, Dwarves, Isengard,
-  Mordor, and Goblins/Wild; all six are exercised, but none currently has a
-  fully green faction suite;
-- a large Men roster with heroes, infantry, archers, cavalry, siege, builders,
-  production buildings, fortress parts, walls, and upgrades;
-- construction, production and cancellation, rally points, combat, armor and
-  weapon upgrades, stances, formations, cavalry trample, hero experience,
-  abilities, death and revival, control groups, and victory/defeat;
-- a broadly exercised Men spellbook runtime plus compiled spellbook documents
-  for the other factions; non-Men casting coverage is incomplete and currently
-  has failing assertions;
-- AI base construction, production, attacks, and defeat handling;
-- source-derived terrain, roads, water, navigation, minimaps, start positions,
-  and fortress placement for a five-map development set; and
-- deterministic state signatures and hundreds of focused runtime assertions.
-
-That is real progress, but it is not a current completion claim. Men versus Men on Fords
-of Isen II remains the best-covered developer-playable alpha slice. The other factions execute
-substantial gameplay suites but still have failing assertions and stale pinned
-signatures. Four of the five maps boot with source terrain and navigation but do
-not yet have Fords' prop coverage. Runtime teardown leaks and visual-oracle work
-also remain open. See [STATUS.md](STATUS.md) for the current test evidence.
-
-| Capability | Most recent audited state |
+| Feature | Status |
 |---|---|
-| BFME2 1.06 discovery, extraction, conversion, and provenance | Implemented across the active private packs |
-| Men versus Men on Fords of Isen II | Best-covered developer-playable alpha slice; suite still fails |
-| Six faction runtime surfaces | Converted, selectable, and exercised; not yet fully green |
-| Five-map development set | All boot; only Fords has strong prop coverage |
-| Main menu, skirmish setup, options, HUD, and audio | Implemented under focused tests |
-| Deterministic multiplayer and dedicated servers | Planned architecture; not implemented |
-| Campaigns and War of the Ring | Explicitly outside project scope |
-| Rise of the Witch-king | Outside current BFME2 scope |
-| Public binary or polished installer | Not available |
+| BFME2 1.06 importer | Completed |
+| Local private content packs | Completed |
+| Main menu and skirmish setup | In progress |
+| Men versus Men on Fords of Isen II | In progress |
+| All six BFME2 factions | In progress |
+| Five-map development set | In progress |
+| Multiplayer and dedicated servers | Not started |
+| Public installer | Not started |
+
+Campaigns, War of the Ring, and Rise of the Witch-king are not in the current
+project scope. See [STATUS.md](STATUS.md) for known problems and test results.
 
 ## Why this project exists
 
@@ -146,18 +121,18 @@ Use your actual Godot and BFME2 paths. Read the full
 
 ## Roadmap
 
-1. Finish and freeze Men versus Men on Fords of Isen II.
-2. Harden the full Men roster across the selected five-map set.
-3. Bring all six BFME2 factions and official skirmish systems to green runtime
-   and original-game evidence.
-4. Add deterministic, self-hosted multiplayer for up to eight players.
-5. Complete the skirmish shell, replays, observers, Create-a-Hero, and broader
-   map and modding tools.
-6. Add accessibility, HD presentation packs, safe updates, rollback, and a
-   polished installer without weakening compatibility checks.
+| Goal | Status |
+|---|---|
+| Import BFME2 1.06 content locally | Completed |
+| Finish Men versus Men on Fords of Isen II | In progress |
+| Finish the Men faction across the selected maps | In progress |
+| Finish all six BFME2 factions and skirmish systems | In progress |
+| Add self-hosted multiplayer for up to eight players | Not started |
+| Add replays, observers, Create-a-Hero, and broader modding tools | Not started |
+| Package a polished public installer | Not started |
 
-Campaign material and War of the Ring are not part of this roadmap. The stable
-scope and non-goals live in [DIRECTION.md](DIRECTION.md).
+Campaign material and War of the Ring are not planned. More detail is available
+in [DIRECTION.md](DIRECTION.md).
 
 ## Find your way around
 
@@ -174,17 +149,11 @@ scope and non-goals live in [DIRECTION.md](DIRECTION.md).
 | Understand the use of AI | [AI development](docs/AI_DEVELOPMENT.md) |
 | Ask a common question | [FAQ](docs/FAQ.md) |
 
-## Built with AI, judged by evidence
+## AI-assisted development
 
 OpenBFME has been built with extensive AI assistance under human direction and
-testing. The project owner reports that Fable 5, ChatGPT Sol, and Kimi K3
-contributed substantial implementation and review work. The current Git history
-does not preserve model-level attribution for individual changes, so those
-credits are owner testimony rather than repository-verifiable authorship.
-
-That origin is part of the experiment, not proof that the result is correct.
-Claims are accepted only when backed by source evidence, focused tests, runtime
-behavior, original-game comparison, and human review. See
+testing. Fable 5, ChatGPT Sol, and Kimi K3 have all contributed to the project.
+AI-generated work is reviewed and tested like any other contribution. See
 [docs/AI_DEVELOPMENT.md](docs/AI_DEVELOPMENT.md).
 
 ## Contributing
@@ -199,8 +168,8 @@ with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License and legal notice
 
-The proposed public source is distributed under the GNU General Public License
-v3.0; the repository now carries its own [LICENSE](LICENSE). That license applies
+OpenBFME source is distributed under the GNU General Public License v3.0. The
+repository carries its own [LICENSE](LICENSE). That license applies
 to code the project is authorized to license, not to *The Lord of the Rings*,
 BFME2, or third-party content. Third-party provenance and notice review remains a
 publication gate.

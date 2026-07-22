@@ -1,10 +1,3 @@
-Owner: Integration owner
-Owns: Component boundaries, authoritative state ownership, stable runtime data flow, and accepted architecture decisions.
-Does not own: Current progress, milestone acceptance, retail completeness counts, or task scheduling.
-Last verified commit: `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-Update trigger: An accepted architecture decision changes a boundary, authority, protocol, or pack contract.
-Validation: Review boundary tests and architecture-decision evidence against the current implementation; volatile results belong in `STATUS.md`.
-
 # OpenBFME architecture
 
 ## System boundary

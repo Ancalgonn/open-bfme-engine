@@ -1,12 +1,5 @@
 # OpenBFME content pipeline
 
-> **Owner:** Importer and content-pack integration owner
-> **Owns:** Retail extraction, conversion, caching, provenance, pack assembly, publication, and runtime-loading contracts.
-> **Does not own:** Gameplay semantics, simulation protocol, visual parity approval, mod load-order policy, or public-release approval.
-> **Last verified commit:** `efe6a6c1f7ab76ae84436faed4e9a02298a4a194`
-> **Update trigger:** A source format, converter, pack schema, tool pin, publication rule, or runtime mount contract changes.
-> **Validation:** `run_importer_tests.bat`, `run_retail_pack_tests.bat`, and the generated pack provenance/audit reports.
-
 ## Contract
 
 The importer is the only component allowed to understand BFME2 retail containers and
