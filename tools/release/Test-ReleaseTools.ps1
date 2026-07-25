@@ -10,6 +10,13 @@ if (-not $temp.StartsWith($tempBase, [StringComparison]::OrdinalIgnoreCase)) {
 }
 
 try {
+    $releaseWorkflow = Get-Content -LiteralPath (
+        Join-Path $PSScriptRoot "..\..\.github\workflows\release.yml"
+    ) -Raw
+    if ($releaseWorkflow -match '\$env:GODOT_RELEASE_(?:win64|export_templates)') {
+        throw "Release workflow uses ambiguous PowerShell environment-variable interpolation."
+    }
+
     $stage = Join-Path $temp "stage"
     & (Join-Path $PSScriptRoot "Build-CodeOnlyExport.ps1") `
         -RepositoryRoot (Resolve-Path (Join-Path $PSScriptRoot "../..")) `

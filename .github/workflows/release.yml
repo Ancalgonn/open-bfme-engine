@@ -142,10 +142,10 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw "Godot release asset download failed." }
           }
           Get-GodotReleaseAsset `
-            "Godot_v$env:GODOT_RELEASE_win64.exe.zip" `
+            "Godot_v$($env:GODOT_RELEASE)_win64.exe.zip" `
             $editor
           Get-GodotReleaseAsset `
-            "Godot_v$env:GODOT_RELEASE_export_templates.tpz" `
+            "Godot_v$($env:GODOT_RELEASE)_export_templates.tpz" `
             $templates
           if ((Get-FileHash $editor -Algorithm SHA512).Hash.ToLowerInvariant() -ne $env:GODOT_EDITOR_SHA512) { throw "Godot editor hash mismatch." }
           if ((Get-FileHash $templates -Algorithm SHA512).Hash.ToLowerInvariant() -ne $env:GODOT_TEMPLATES_SHA512) { throw "Godot templates hash mismatch." }
