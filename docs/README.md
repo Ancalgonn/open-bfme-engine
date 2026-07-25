@@ -7,11 +7,15 @@ entire archive.
 ## Start here
 
 1. [Project README](../README.md) — purpose, present state, and roadmap.
-2. [Getting started](GETTING_STARTED.md) — prepare a BFME2 1.06 installation,
-   run the doctor, import content locally, and launch the development slice.
-3. [FAQ](FAQ.md) — legality, assets, AI, supported scope, platforms, and common
+2. [Onboarding](ONBOARDING.md) — the ten-minute guided path: run
+   `tools/onboard.py` to check prerequisites, validate your install, convert
+   or verify content, and run the verification gates.
+3. [Getting started](GETTING_STARTED.md) — the manual workflow: prepare a
+   BFME2 1.06 installation, run the doctor, import content locally, and launch
+   the development slice.
+4. [FAQ](FAQ.md) — legality, assets, AI, supported scope, platforms, and common
    misconceptions.
-4. [Contributing](../CONTRIBUTING.md) — contribution boundaries, tests, and the
+5. [Contributing](../CONTRIBUTING.md) — contribution boundaries, tests, and the
    retail-content firewall.
 
 ## Project truth
@@ -39,6 +43,8 @@ documents should link to it rather than copying volatile claims.
 | Deterministic simulation and networking target | [SIMULATION_PROTOCOL.md](SIMULATION_PROTOCOL.md) |
 | Mod and content-pack direction | [MODDING.md](MODDING.md) |
 | Code-only public distribution | [RELEASE_POLICY.md](RELEASE_POLICY.md) |
+| Launcher and Windows release workflow | [LAUNCHER_AND_RELEASES.md](LAUNCHER_AND_RELEASES.md) |
+| Clean Windows VM acceptance | [WINDOWS_VM_ACCEPTANCE.md](WINDOWS_VM_ACCEPTANCE.md) |
 | Third-party tools and provenance | [THIRD_PARTY.md](THIRD_PARTY.md) |
 | AI-assisted development | [AI_DEVELOPMENT.md](AI_DEVELOPMENT.md) |
 

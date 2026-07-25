@@ -1,0 +1,59 @@
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)][string]$ReleaseRoot,
+    [Parameter(Mandatory)][string]$Version,
+    [Parameter(Mandatory)][string]$Commit,
+    [ValidateSet("stable", "playtest", "nightly")][string]$Channel = "playtest",
+    [string]$Repository = "Ancalgonn/open-bfme-engine",
+    [Parameter(Mandatory)][string]$Output
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+Add-Type -AssemblyName System.IO.Compression
+if ($Version -cnotmatch '^[0-9A-Za-z][0-9A-Za-z._-]{0,63}$') { throw "Unsafe version." }
+if ($Commit -cnotmatch '^[0-9a-f]{40}$') { throw "Commit must be a full lowercase SHA-1." }
+if ($Repository -ne "Ancalgonn/open-bfme-engine") { throw "Unexpected repository." }
+
+$root = [IO.Path]::GetFullPath($ReleaseRoot)
+$packageDefinitions = @(
+    @{ name = "OpenBFME-$Version-windows-x64.zip"; kind = "game-windows-x64" },
+    @{ name = "OpenBFME-Launcher-$Version-windows-x64.zip"; kind = "launcher-windows-x64" }
+)
+$packages = foreach ($definition in $packageDefinitions) {
+    $path = Join-Path $root $definition.name
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing release package: $($definition.name)" }
+    $item = Get-Item -LiteralPath $path
+    $stream = [IO.File]::OpenRead($path)
+    try {
+        $archive = [IO.Compression.ZipArchive]::new(
+            $stream, [IO.Compression.ZipArchiveMode]::Read, $false
+        )
+        try { $expandedSize = ($archive.Entries | Measure-Object Length -Sum).Sum }
+        finally { $archive.Dispose() }
+    }
+    finally { $stream.Dispose() }
+    @{
+        name = $definition.name
+        url = "https://github.com/$Repository/releases/download/v$Version/$($definition.name)"
+        sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $path).Hash.ToLowerInvariant()
+        size = $item.Length
+        expandedSize = $expandedSize
+        kind = $definition.kind
+    }
+}
+$manifest = [ordered]@{
+    schema = "openbfme.release-manifest"
+    schemaVersion = 1
+    repository = $Repository
+    version = $Version
+    channel = $Channel
+    commit = $Commit
+    packages = @($packages)
+}
+$outputPath = [IO.Path]::GetFullPath($Output)
+[void](New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($outputPath)) -Force)
+$temporary = "$outputPath.$PID.tmp"
+[IO.File]::WriteAllText($temporary, ($manifest | ConvertTo-Json -Depth 8) + "`n", [Text.UTF8Encoding]::new($false))
+Move-Item -LiteralPath $temporary -Destination $outputPath
+Write-Host "RELEASE_MANIFEST PASS packages=$($packages.Count) output=$outputPath"

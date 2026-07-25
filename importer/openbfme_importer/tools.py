@@ -70,8 +70,18 @@ def discover_executable(name: str, env_name: str | None = None) -> Path | None:
     return Path(found).resolve() if found else None
 
 
-def inspect_tool(name: str, env_name: str | None = None, version_args: Sequence[str] = ("-version",)) -> ToolInfo:
-    executable = discover_executable(name, env_name)
+def inspect_tool(
+    name: str,
+    env_name: str | None = None,
+    version_args: Sequence[str] = ("-version",),
+    *,
+    executable: Path | None = None,
+) -> ToolInfo:
+    executable = (
+        Path(executable).expanduser().resolve()
+        if executable is not None
+        else discover_executable(name, env_name)
+    )
     if not executable:
         return ToolInfo(name, None, None)
     try:
@@ -109,6 +119,33 @@ def git_revision(repository: Path, relative: str | None = None) -> str | None:
     except (OSError, subprocess.TimeoutExpired):
         return None
     return result.stdout.strip().casefold() if result.returncode == 0 else None
+
+
+def git_revision_at_exact_root(repository: Path) -> str | None:
+    """Return HEAD only when repository itself is the Git top-level."""
+
+    git = shutil.which("git")
+    root = repository.expanduser().resolve()
+    if not git:
+        return None
+    try:
+        top = subprocess.run(
+            [git, "rev-parse", "--show-toplevel"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if top.returncode != 0:
+        return None
+    try:
+        discovered = Path(top.stdout.strip()).resolve()
+    except (OSError, ValueError):
+        return None
+    return git_revision(root) if discovered == root else None
 
 
 def git_worktree_clean(repository: Path) -> bool:

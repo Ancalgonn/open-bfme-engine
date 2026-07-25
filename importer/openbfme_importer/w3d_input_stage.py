@@ -366,7 +366,9 @@ def _resolve_output_root(value: Path | str, source_root: Path) -> Path:
         )
     if os.path.lexists(output):
         if _is_link_like(output):
-            raise W3DInputStageError("W3D input stage root must not be linked")
+            raise W3DInputStageError(
+                "W3D input stage root is linked and must not be linked"
+            )
         if not output.is_dir():
             raise W3DInputStageError("W3D input stage root is not a directory")
     return output

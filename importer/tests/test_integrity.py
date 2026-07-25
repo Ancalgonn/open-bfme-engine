@@ -178,7 +178,7 @@ class IntegrityTests(unittest.TestCase):
                 "tree_sha256": recipe_digest,
                 "files": [recipe_file],
                 "git_commit": "e" * 40,
-                "git_worktree_clean": False,
+                "git_worktree_clean": True,
             },
             "source_game": "bfme2-retail-user-owned",
             "source_archives": archives,
