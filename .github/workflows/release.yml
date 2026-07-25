@@ -114,8 +114,27 @@ jobs:
           New-Item -ItemType Directory -Path $toolRoot | Out-Null
           $editor = Join-Path $toolRoot "godot-editor.zip"
           $templates = Join-Path $toolRoot "godot-templates.zip"
-          Invoke-WebRequest "https://github.com/godotengine/godot/releases/download/$env:GODOT_RELEASE/Godot_v$env:GODOT_RELEASE_win64.exe.zip" -OutFile $editor
-          Invoke-WebRequest "https://github.com/godotengine/godot/releases/download/$env:GODOT_RELEASE/Godot_v$env:GODOT_RELEASE_export_templates.tpz" -OutFile $templates
+          function Get-GodotReleaseAsset {
+            param([Parameter(Mandatory)][string]$Uri, [Parameter(Mandatory)][string]$Destination)
+            & curl.exe `
+              --fail `
+              --location `
+              --silent `
+              --show-error `
+              --retry 5 `
+              --retry-all-errors `
+              --retry-delay 2 `
+              --retry-max-time 120 `
+              --output $Destination `
+              $Uri
+            if ($LASTEXITCODE -ne 0) { throw "Godot release asset download failed." }
+          }
+          Get-GodotReleaseAsset `
+            "https://github.com/godotengine/godot/releases/download/$env:GODOT_RELEASE/Godot_v$env:GODOT_RELEASE_win64.exe.zip" `
+            $editor
+          Get-GodotReleaseAsset `
+            "https://github.com/godotengine/godot/releases/download/$env:GODOT_RELEASE/Godot_v$env:GODOT_RELEASE_export_templates.tpz" `
+            $templates
           if ((Get-FileHash $editor -Algorithm SHA512).Hash.ToLowerInvariant() -ne $env:GODOT_EDITOR_SHA512) { throw "Godot editor hash mismatch." }
           if ((Get-FileHash $templates -Algorithm SHA512).Hash.ToLowerInvariant() -ne $env:GODOT_TEMPLATES_SHA512) { throw "Godot templates hash mismatch." }
           Expand-Archive $editor -DestinationPath (Join-Path $toolRoot "editor")
