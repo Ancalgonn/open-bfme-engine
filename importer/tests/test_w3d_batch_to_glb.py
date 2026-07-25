@@ -1034,6 +1034,8 @@ class W3dAdapterInitializationTests(unittest.TestCase):
                     required_equipment=[],
                     excluded_optional_meshes=[],
                     proven_root_rigid_bake=False,
+                    proven_pivot_only_model=False,
+                    retail_absent_textures=[],
                     output=root / "output.glb",
                 )
                 adapter.initialize_w3d_converter = lambda _root: calls.__setitem__(
@@ -1081,8 +1083,10 @@ class W3dAdapterInitializationTests(unittest.TestCase):
             fake_bpy.ops.wm.read_factory_settings = lambda **_kwargs: calls.__setitem__(
                 "factory", calls["factory"] + 1
             )
+            updater = types.SimpleNamespace(stage_path=None)
             plugin = types.SimpleNamespace(
-                register=lambda: calls.__setitem__("register", calls["register"] + 1)
+                register=lambda: calls.__setitem__("register", calls["register"] + 1),
+                addon_updater_ops=types.SimpleNamespace(updater=updater),
             )
             sys.modules["io_mesh_w3d"] = plugin
             adapter.install_shader_material_compatibility_shim = lambda: (
@@ -1105,6 +1109,10 @@ class W3dAdapterInitializationTests(unittest.TestCase):
                 adapter.initialize_w3d_converter(plugin_root)
                 adapter.initialize_w3d_converter(plugin_root)
                 self.assertEqual(calls, {"factory": 1, "register": 1, "shim": 1})
+                self.assertTrue(Path(updater.stage_path).is_dir())
+                self.assertFalse(
+                    Path(updater.stage_path).is_relative_to(plugin_root)
+                )
                 with self.assertRaisesRegex(RuntimeError, "switch plugin roots"):
                     adapter.initialize_w3d_converter(other_root)
         finally:

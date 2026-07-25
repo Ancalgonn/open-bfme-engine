@@ -22,10 +22,6 @@
 > requires a lawfully acquired BFME2 1.06 installation and converts content
 > locally on your computer.
 
-> [!NOTE]
-> OpenBFME is an early development project. Expect unfinished features, bugs,
-> and breaking changes.
-
 ## What is OpenBFME?
 
 OpenBFME is rebuilding the skirmish side of *The Battle for Middle-earth II* in
@@ -42,26 +38,47 @@ The importer understands BFME2's source formats; the game runtime loads a
 versioned pack generated privately on the user's machine. Proprietary retail
 content stays outside Git and outside public releases.
 
-## Current state
+## Where the development tree is today
 
-OpenBFME can import BFME2 data and run an early skirmish experience in Godot.
-Men versus Men on Fords of Isen II is the most complete part of the project.
-Other factions and maps are under active development and are not yet ready for
-normal play.
+The current target is a polished Men-versus-Men skirmish on Fords of Isen II.
+The codebase contains broader systems and experimental faction paths, but they
+are not all at the same quality level. This table uses only three statuses:
 
-| Feature | Status |
-|---|---|
-| BFME2 1.06 importer | Completed |
-| Local private content packs | Completed |
-| Main menu and skirmish setup | In progress |
-| Men versus Men on Fords of Isen II | In progress |
-| All six BFME2 factions | In progress |
-| Five-map development set | In progress |
-| Multiplayer and dedicated servers | Not started |
-| Public installer | Not started |
+- **Completed** means the implementation passes its applicable current tests.
+- **In progress** means meaningful code and tests exist, but parity or release
+  acceptance is incomplete.
+- **Not started** means there is no supported implementation.
 
-Campaigns, War of the Ring, and Rise of the Witch-king are not in the current
-project scope. See [STATUS.md](STATUS.md) for known problems and test results.
+| Feature | BFME II | Rise of the Witch-king | OpenBFME status |
+|---|---|---|---|
+| Local retail discovery and fail-closed archive identity | Required source | Future overlay | Completed for BFME II 1.06 |
+| Core skirmish loop | Included | Inherited and expanded | In progress |
+| Men-versus-Men on Fords of Isen II | Included | Inherited | In progress; primary playable slice |
+| Six BFME II factions | Included | Additional units and balance changes | In progress; coverage is uneven |
+| Angmar | Not included | New faction | Not started; outside the current release target |
+| Building, production, combat, upgrades, powers, and heroes | Included | Expanded | In progress |
+| Skirmish AI | Included | Expanded | In progress |
+| LAN/online multiplayer | Included | Inherited | In progress |
+| Custom fortresses and walls | Included | Inherited | In progress |
+| Create-a-Hero | Included | New Troll class, weapons, and armor | Not started |
+| Campaigns | Good and Evil campaigns | Angmar campaign | Not started; outside project scope |
+| War of the Ring | Included | Expanded persistence and siege rules | Not started; outside project scope |
+| Code-only Windows export | Not applicable | Not applicable | Completed |
+| Launcher, signed update manifest, updates, and rollback | Not applicable | Not applicable | Completed |
+| Repeatable packaged BFME II import | Required source | Not the current release target | Completed |
+| Clean Windows release VM and public release | Not applicable | Not applicable | In progress |
+
+EA's original announcements are the reference for the high-level comparison:
+[BFME II introduced custom heroes, fortresses, walls, and War of the Ring](https://ir.ea.com/press-releases/press-release-details/2006/EA-Ships-The-Lord-of-the-Rings-The-Battle-for-Middle-earth-II-and-The-Lord-of-the-Rings-The-Battle-for-Middle-earth-II-Collectors-Edition-Highly-Anticipated-PC-Game-Ships-Nationwide-Today/default.aspx);
+[Rise of the Witch-king added Angmar, faction units, a campaign, expanded
+Create-a-Hero, and an upgraded War of the Ring](https://ir.ea.com/press-releases/press-release-details/2006/EAs-The-Lord-of-the-Rings-The-Battle-for-Middle-earth-II-The-Rise-of-the-Witch-king-Has-Shipped-for-the-PC/default.aspx).
+Project status comes from current code and gates, not those marketing pages.
+See [STATUS.md](STATUS.md) for current evidence and blockers.
+
+The packaged launcher has produced two byte-identical BFME II Men/Fords packs
+from separate empty local states, and the resulting Windows export starts with
+that selected pack. Public release publication remains blocked until the same
+test passes on a dedicated clean Windows VM.
 
 ## Why this project exists
 
@@ -109,6 +126,22 @@ The current workflow is Windows-first and intended for developers. You need a
 lawfully acquired BFME2 1.06 installation, Godot 4.7, Python 3.12, and the .NET
 SDK selected by `global.json`.
 
+The guided onboarding wizard checks prerequisites, validates your install
+fail-closed, converts or verifies the Men content pack, and runs the headless
+verification gates:
+
+```bat
+python tools\onboard.py
+```
+
+Non-interactive equivalent (CI or scripted setup):
+
+```bat
+python tools\onboard.py --install "D:\Games\BFME2" --godot "C:\Tools\Godot\Godot_v4.7-stable_win64_console.exe" --yes
+```
+
+The manual command path still works:
+
 ```bat
 set OPENBFME_GODOT=C:\Tools\Godot\Godot_v4.7-stable_win64.exe
 run_doctor.bat
@@ -116,29 +149,28 @@ run_importer.bat "D:\Games\BFME2"
 run_retail_slice.bat
 ```
 
-Use your actual Godot and BFME2 paths. Read the full
-[getting-started guide](docs/GETTING_STARTED.md) before importing.
+Use your actual Godot and BFME2 paths. Read the
+[onboarding guide](docs/ONBOARDING.md) for the ten-minute walkthrough and the
+[getting-started guide](docs/GETTING_STARTED.md) for the full background before
+importing.
 
 ## Roadmap
 
-| Goal | Status |
-|---|---|
-| Import BFME2 1.06 content locally | Completed |
-| Finish Men versus Men on Fords of Isen II | In progress |
-| Finish the Men faction across the selected maps | In progress |
-| Finish all six BFME2 factions and skirmish systems | In progress |
-| Add self-hosted multiplayer for up to eight players | Not started |
-| Add replays, observers, Create-a-Hero, and broader modding tools | Not started |
-| Package a polished public installer | Not started |
+1. Finish the Men-versus-Men Fords of Isen II release slice.
+2. Ship the code-only Windows launcher, repeatable local importer, updates, and
+   rollback.
+3. Expand BFME II skirmish coverage to more Men units, maps, and factions.
+4. Harden multiplayer and modding after the local skirmish release is stable.
 
-Campaign material and War of the Ring are not planned. More detail is available
-in [DIRECTION.md](DIRECTION.md).
+Campaign material and War of the Ring are not part of this roadmap. The stable
+scope and non-goals live in [DIRECTION.md](DIRECTION.md).
 
 ## Find your way around
 
 | If you want to... | Start here |
 |---|---|
 | Understand the project in five minutes | [Documentation hub](docs/README.md) |
+| Set up a fresh machine in ten minutes | [Onboarding](docs/ONBOARDING.md) |
 | Install and run the developer build | [Getting started](docs/GETTING_STARTED.md) |
 | Check current passes and failures | [Status](STATUS.md) |
 | Understand the engine boundaries | [Architecture](docs/ARCHITECTURE.md) |
@@ -149,11 +181,17 @@ in [DIRECTION.md](DIRECTION.md).
 | Understand the use of AI | [AI development](docs/AI_DEVELOPMENT.md) |
 | Ask a common question | [FAQ](docs/FAQ.md) |
 
-## AI-assisted development
+## Built with AI, judged by evidence
 
 OpenBFME has been built with extensive AI assistance under human direction and
-testing. Fable 5, ChatGPT Sol, and Kimi K3 have all contributed to the project.
-AI-generated work is reviewed and tested like any other contribution. See
+testing. The project owner reports that Fable 5, ChatGPT Sol, and Kimi K3
+contributed substantial implementation and review work. The current Git history
+does not preserve model-level attribution for individual changes, so those
+credits are owner testimony rather than repository-verifiable authorship.
+
+That origin is part of the experiment, not proof that the result is correct.
+Claims are accepted only when backed by source evidence, focused tests, runtime
+behavior, original-game comparison, and human review. See
 [docs/AI_DEVELOPMENT.md](docs/AI_DEVELOPMENT.md).
 
 ## Contributing
@@ -168,8 +206,8 @@ with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License and legal notice
 
-OpenBFME source is distributed under the GNU General Public License v3.0. The
-repository carries its own [LICENSE](LICENSE). That license applies
+The proposed public source is distributed under the GNU General Public License
+v3.0; the repository now carries its own [LICENSE](LICENSE). That license applies
 to code the project is authorized to license, not to *The Lord of the Rings*,
 BFME2, or third-party content. Third-party provenance and notice review remains a
 publication gate.

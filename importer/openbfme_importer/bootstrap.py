@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+import urllib.parse
 import zipfile
 from typing import Any
 
@@ -32,7 +33,23 @@ BLENDER_TREE_SHA256 = "81e0cfb0d56ff5e33c2c562b13cc88257b9b34e072efa7ae054a6c87f
 PLUGIN_REPOSITORY = "https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin.git"
 PLUGIN_COMMIT = "2de84023cb632a79a853b2a52f97c8002ed85142"
 PLUGIN_SUBMODULE_COMMIT = "981aa2984117a1c686b7fa40d086794ce1c7665e"
+PLUGIN_ARCHIVE_URL = (
+    "https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/archive/"
+    f"{PLUGIN_COMMIT}.zip"
+)
+PLUGIN_ARCHIVE_SHA256 = "0e4ff63e8a9e9c04c4fa94eb232893624a47d39fe89cfbf34082353a06567c29"
+PLUGIN_SUBMODULE_ARCHIVE_URL = (
+    "https://github.com/CGCookie/blender-addon-updater/archive/"
+    f"{PLUGIN_SUBMODULE_COMMIT}.zip"
+)
+PLUGIN_SUBMODULE_ARCHIVE_SHA256 = "5a78744e3eb3bfa33e2d007b345697eccf7f9920f73fa828212da8e7691f4377"
+PLUGIN_TREE_SHA256 = "d64e49a9daba7dbec5f7d6bee4e947208f763b97de038e752c8213cf6a13bd3f"
 FFMPEG_VERSION = "8.1.1"
+FFMPEG_ARCHIVE_URL = (
+    "https://github.com/GyanD/codexffmpeg/releases/download/8.1.1/"
+    "ffmpeg-8.1.1-essentials_build.zip"
+)
+FFMPEG_ARCHIVE_SHA256 = "6f58ce889f59c311410f7d2b18895b33c03456463486f3b1ebc93d97a0f54541"
 FFMPEG_EXE_SHA256 = "228d7a8556258de907fdb55f36850078ebc7680b84ec30d84ea02e99bec1d1eb"
 FFPROBE_EXE_SHA256 = "0fde260f5abd35c9cafd96f594cc76365a780c1b73a90e35b6a3409ea1db1bf0"
 PILLOW_TREE_SHA256 = "18c02c91b31a5b2619eb1542144f0ef1f7ac4065eab7c5924f2640b3010fd7b0"
@@ -42,6 +59,7 @@ DEFUSEDXML_VERSION = "0.7.1"
 DEFUSEDXML_TREE_SHA256 = "4a5bc129bad371fd21f6bb07621d2d331a1d2b192fef9b2bf78656b928c7738d"
 PYTHON_VERSION = "3.12.10"
 PYTHON_LAUNCHER_SHA256 = "0b471133e110cfb53a061cad528ce8e517d7b9ac41a0a396c39ad795a487fc14"
+PYTHON_BASE_LAUNCHER_SHA256 = "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a"
 PYTHON_BASE_DLL_SHA256 = "9a0e3435aaa680d868150f87ab3e388ad2eebc22f87e036155c7b4eda8cd2120"
 PYTHON_RUNTIME_TREE_SHA256 = "98348e31da2e14c684372bf02fee52b71984d28d8a91b82dbe0fe9aa2f6561d7"
 PYTHON_RUNTIME_MAX_FILES = 20_000
@@ -59,6 +77,48 @@ PYTHON_RUNTIME_EXCLUDED_STDLIB = {
     "tkinter",
     "turtledemo",
 }
+
+
+def _download_file(url: str, destination: Path, *, max_bytes: int) -> None:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme != "https" or parsed.hostname not in {
+        "github.com",
+        "codeload.github.com",
+        "download.blender.org",
+        "objects.githubusercontent.com",
+        "release-assets.githubusercontent.com",
+    }:
+        raise RuntimeError(f"tool download URL is not approved: {url}")
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "OpenBFME-Importer/1.0"},
+    )
+    temporary = destination.with_suffix(destination.suffix + ".part")
+    total = 0
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            final = urllib.parse.urlparse(response.geturl())
+            if final.scheme != "https" or final.hostname not in {
+                "github.com",
+                "codeload.github.com",
+                "download.blender.org",
+                "objects.githubusercontent.com",
+                "release-assets.githubusercontent.com",
+            }:
+                raise RuntimeError("tool download redirected to an unapproved host")
+            declared = response.headers.get("Content-Length")
+            if declared and int(declared) > max_bytes:
+                raise RuntimeError("tool download exceeds its size bound")
+            with temporary.open("xb") as output:
+                while chunk := response.read(1024 * 1024):
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise RuntimeError("tool download exceeds its size bound")
+                    output.write(chunk)
+        os.replace(temporary, destination)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
 
 
 def _reject_tree_links(root: Path, label: str) -> None:
@@ -349,14 +409,21 @@ def prepare_opensage_plugin_checkout(
     state_root: Path,
     plugin: Path | None = None,
 ) -> dict[str, str]:
-    """Recover caches only in the state root's pinned plugin, then attest Git."""
+    """Recover caches, then attest the pinned Git or archive source tree."""
 
     resolved_state_root = Path(state_root).expanduser().resolve()
     pinned = resolved_state_root / "tools" / "OpenSAGE.BlenderPlugin"
     selected = Path(plugin or pinned).expanduser().resolve(strict=True)
     if selected == pinned:
         _purge_python_caches(selected, "OpenSAGE W3D plugin")
-    return _attest_opensage_plugin_checkout(selected)
+    if (selected / ".git").exists():
+        return _attest_opensage_plugin_checkout(selected)
+    _attest_opensage_plugin_portable(selected)
+    return {
+        "commit": PLUGIN_COMMIT,
+        "submodule_commit": PLUGIN_SUBMODULE_COMMIT,
+        "tree_sha256": PLUGIN_TREE_SHA256,
+    }
 
 
 def python_runtime_attestation() -> dict[str, Any]:
@@ -441,6 +508,18 @@ def python_runtime_attestation() -> dict[str, Any]:
     }
 
 
+def python_runtime_identity_is_pinned(report: dict[str, Any]) -> bool:
+    """Accept the pinned venv stub or standalone base launcher."""
+
+    return (
+        report.get("version") == PYTHON_VERSION
+        and report.get("launcher_sha256")
+        in {PYTHON_LAUNCHER_SHA256, PYTHON_BASE_LAUNCHER_SHA256}
+        and report.get("base_dll_sha256") == PYTHON_BASE_DLL_SHA256
+        and report.get("tree_sha256") == PYTHON_RUNTIME_TREE_SHA256
+    )
+
+
 def _run(command: list[str], *, cwd: Path | None = None) -> str:
     try:
         result = subprocess.run(
@@ -479,7 +558,7 @@ def _download_blender(tools_root: Path) -> tuple[Path, str]:
     else:
         temporary = zip_path.with_suffix(".zip.downloading")
         temporary.unlink(missing_ok=True)
-        urllib.request.urlretrieve(BLENDER_URL, temporary)
+        _download_file(BLENDER_URL, temporary, max_bytes=1024 * 1024 * 1024)
         _require_hash(temporary, BLENDER_ZIP_SHA256, "Blender archive")
         os.replace(temporary, zip_path)
     with tempfile.TemporaryDirectory(dir=tools_root, prefix="blender-extract-") as raw:
@@ -511,18 +590,75 @@ def _download_blender(tools_root: Path) -> tuple[Path, str]:
 def _checkout_plugin(tools_root: Path) -> Path:
     destination = tools_root / "OpenSAGE.BlenderPlugin"
     git = shutil.which("git")
-    if not git:
-        raise FileNotFoundError("git is required to provision the OpenSAGE W3D plugin")
     if (destination / ".git").exists():
         prepare_opensage_plugin_checkout(tools_root.parent, destination)
         return destination
-    if not (destination / ".git").exists():
-        _run([git, "clone", "--no-checkout", PLUGIN_REPOSITORY, str(destination)])
-    _run([git, "fetch", "--depth", "1", "origin", PLUGIN_COMMIT], cwd=destination)
-    _run([git, "checkout", "--detach", PLUGIN_COMMIT], cwd=destination)
-    _run([git, "submodule", "update", "--init", "--depth", "1"], cwd=destination)
-    _attest_opensage_plugin_checkout(destination)
+    if destination.is_dir():
+        _attest_opensage_plugin_portable(destination)
+        return destination
+    with tempfile.TemporaryDirectory(prefix="opensage-", dir=tools_root) as temporary:
+        staging = Path(temporary)
+        plugin_zip = staging / "plugin.zip"
+        updater_zip = staging / "updater.zip"
+        _download_file(PLUGIN_ARCHIVE_URL, plugin_zip, max_bytes=128 * 1024 * 1024)
+        _download_file(
+            PLUGIN_SUBMODULE_ARCHIVE_URL,
+            updater_zip,
+            max_bytes=128 * 1024 * 1024,
+        )
+        _require_hash(plugin_zip, PLUGIN_ARCHIVE_SHA256, "OpenSAGE plugin archive")
+        _require_hash(
+            updater_zip,
+            PLUGIN_SUBMODULE_ARCHIVE_SHA256,
+            "OpenSAGE plugin updater archive",
+        )
+        plugin_extract = staging / "plugin"
+        updater_extract = staging / "updater"
+        _extract_safe_zip(plugin_zip, plugin_extract)
+        _extract_safe_zip(updater_zip, updater_extract)
+        plugin_roots = [item for item in plugin_extract.iterdir() if item.is_dir()]
+        updater_roots = [item for item in updater_extract.iterdir() if item.is_dir()]
+        if len(plugin_roots) != 1 or len(updater_roots) != 1:
+            raise RuntimeError("OpenSAGE source archives have an unexpected layout")
+        assembled = staging / "assembled"
+        shutil.move(str(plugin_roots[0]), assembled)
+        updater_target = assembled / "io_mesh_w3d" / "blender_addon_updater"
+        if updater_target.exists():
+            if updater_target.is_dir():
+                shutil.rmtree(updater_target)
+            else:
+                updater_target.unlink()
+        shutil.move(str(updater_roots[0]), updater_target)
+        _attest_opensage_plugin_portable(assembled)
+        os.replace(assembled, destination)
     return destination
+
+
+def _extract_safe_zip(archive_path: Path, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=False)
+    canonical = destination.resolve()
+    with zipfile.ZipFile(archive_path) as archive:
+        for member in archive.infolist():
+            parts = safe_relative_parts(member.filename.rstrip("/"))
+            target = destination.joinpath(*parts).resolve()
+            try:
+                target.relative_to(canonical)
+            except ValueError as exc:
+                raise RuntimeError(f"ZIP entry escapes destination: {member.filename}") from exc
+            if member.external_attr and ((member.external_attr >> 16) & 0xF000) == 0xA000:
+                raise RuntimeError(f"ZIP contains a symbolic link: {member.filename}")
+        archive.extractall(destination)
+
+
+def _attest_opensage_plugin_portable(checkout: Path) -> None:
+    _reject_tree_links(checkout, "OpenSAGE plugin")
+    _reject_python_bytecode(checkout, "OpenSAGE plugin")
+    observed = directory_tree_sha256(checkout, ignore_python_cache=True)
+    if observed != PLUGIN_TREE_SHA256:
+        raise RuntimeError(
+            "OpenSAGE plugin portable tree differs from its pinned source: "
+            f"observed {observed}"
+        )
 
 
 def _ffmpeg_candidates(configured: Path | None, tools_root: Path) -> list[Path]:
@@ -552,9 +688,29 @@ def _pin_ffmpeg(tools_root: Path, configured: Path | None) -> tuple[Path, Path]:
             source = path
             break
     if not source:
-        raise FileNotFoundError(
-            "pinned FFmpeg 8.1.1 was not found; pass bootstrap-tools --ffmpeg <ffmpeg.exe>"
-        )
+        with tempfile.TemporaryDirectory(prefix="ffmpeg-", dir=tools_root) as temporary:
+            staging = Path(temporary)
+            archive_path = staging / "ffmpeg.zip"
+            extracted = staging / "extracted"
+            _download_file(
+                FFMPEG_ARCHIVE_URL,
+                archive_path,
+                max_bytes=512 * 1024 * 1024,
+            )
+            _require_hash(archive_path, FFMPEG_ARCHIVE_SHA256, "FFmpeg archive")
+            _extract_safe_zip(archive_path, extracted)
+            candidates = list(extracted.glob("*/bin/ffmpeg.exe"))
+            if len(candidates) != 1:
+                raise RuntimeError("FFmpeg archive has an unexpected layout")
+            source = candidates[0]
+            source_probe = source.with_name("ffprobe.exe")
+            _require_hash(source, FFMPEG_EXE_SHA256, "FFmpeg executable")
+            _require_hash(source_probe, FFPROBE_EXE_SHA256, "FFprobe executable")
+            destination_dir = tools_root / "ffmpeg-8.1.1" / "bin"
+            destination_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, destination_dir / "ffmpeg.exe")
+            shutil.copyfile(source_probe, destination_dir / "ffprobe.exe")
+        source = tools_root / "ffmpeg-8.1.1" / "bin" / "ffmpeg.exe"
     source_probe = source.with_name("ffprobe.exe")
     if not source_probe.is_file():
         raise FileNotFoundError(f"ffprobe.exe is missing beside {source}")
@@ -602,11 +758,7 @@ def bootstrap_tools(state_root: Path, ffmpeg_source: Path | None = None) -> dict
             f"found {sys.version.split()[0]}, {', '.join(dependency_versions)}"
         )
     python_runtime = python_runtime_attestation()
-    if (
-        python_runtime["launcher_sha256"] != PYTHON_LAUNCHER_SHA256
-        or python_runtime["base_dll_sha256"] != PYTHON_BASE_DLL_SHA256
-        or python_runtime["tree_sha256"] != PYTHON_RUNTIME_TREE_SHA256
-    ):
+    if not python_runtime_identity_is_pinned(python_runtime):
         raise RuntimeError(
             "Python base runtime differs from the pinned 3.12.10 surface; "
             "reinstall the pinned interpreter before recreating the importer environment"
@@ -659,6 +811,9 @@ def bootstrap_tools(state_root: Path, ffmpeg_source: Path | None = None) -> dict
             "opensage_w3d_plugin": {
                 "source": PLUGIN_REPOSITORY,
                 "commit": PLUGIN_COMMIT,
+                "archive": PLUGIN_ARCHIVE_URL,
+                "archive_sha256": PLUGIN_ARCHIVE_SHA256,
+                "tree_sha256": PLUGIN_TREE_SHA256,
                 "python_bytecode_free": True,
                 "license": "LGPL-3.0",
                 "path": str(plugin),
@@ -671,6 +826,8 @@ def bootstrap_tools(state_root: Path, ffmpeg_source: Path | None = None) -> dict
             },
             "ffmpeg": {
                 "version": FFMPEG_VERSION,
+                "archive": FFMPEG_ARCHIVE_URL,
+                "archive_sha256": FFMPEG_ARCHIVE_SHA256,
                 "executable_sha256": FFMPEG_EXE_SHA256,
                 "ffprobe_sha256": FFPROBE_EXE_SHA256,
                 "license": "GPLv3 build",
@@ -766,12 +923,7 @@ def tool_status(
         defusedxml_tree_ready = False
     try:
         python_runtime = python_runtime_attestation()
-        python_runtime_ready = (
-            python_runtime["version"] == PYTHON_VERSION
-            and python_runtime["launcher_sha256"] == PYTHON_LAUNCHER_SHA256
-            and python_runtime["base_dll_sha256"] == PYTHON_BASE_DLL_SHA256
-            and python_runtime["tree_sha256"] == PYTHON_RUNTIME_TREE_SHA256
-        )
+        python_runtime_ready = python_runtime_identity_is_pinned(python_runtime)
     except (OSError, RuntimeError):
         python_runtime = {}
         python_runtime_ready = False
@@ -785,6 +937,21 @@ def tool_status(
             )
         except RuntimeError:
             plugin_clean = False
+    plugin_ready = False
+    if skip_w3d_attestation:
+        plugin_ready = (plugin / "io_mesh_w3d" / "__init__.py").is_file()
+    elif (plugin / ".git").exists():
+        plugin_ready = (
+            plugin_commit.casefold() == PLUGIN_COMMIT
+            and submodule_commit.casefold() == PLUGIN_SUBMODULE_COMMIT
+            and plugin_clean
+        )
+    elif plugin.is_dir():
+        try:
+            _attest_opensage_plugin_portable(plugin)
+            plugin_ready = True
+        except (OSError, RuntimeError):
+            plugin_ready = False
     blender_tree_ready = False
     if not skip_w3d_attestation and blender.is_file():
         try:
@@ -797,9 +964,7 @@ def tool_status(
         "blender_tree": blender_tree_ready,
         "opensage_w3d_plugin": (
             (plugin / "io_mesh_w3d" / "__init__.py").is_file()
-            and plugin_commit.casefold() == PLUGIN_COMMIT
-            and submodule_commit.casefold() == PLUGIN_SUBMODULE_COMMIT
-            and plugin_clean
+            and plugin_ready
         ),
         "ffmpeg": ffmpeg.is_file() and sha256_file(ffmpeg).casefold() == FFMPEG_EXE_SHA256,
         "ffprobe": ffprobe.is_file() and sha256_file(ffprobe).casefold() == FFPROBE_EXE_SHA256,

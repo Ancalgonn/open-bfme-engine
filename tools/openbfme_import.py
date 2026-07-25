@@ -8,7 +8,8 @@ import sys
 
 
 IMPORTER_ROOT = Path(__file__).resolve().parents[1] / "importer"
-sys.path.insert(0, str(IMPORTER_ROOT))
+SITE_PACKAGES = Path(sys.executable).resolve().parent / "Lib" / "site-packages"
+sys.path[:0] = [str(IMPORTER_ROOT), str(SITE_PACKAGES)]
 
 from openbfme_importer.cli import main  # noqa: E402
 

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>OpenBFME.Launcher</AssemblyName>
+    <RootNamespace>OpenBFME.Launcher</RootNamespace>
+    <ApplicationIcon />
+    <Authors>OpenBFME contributors</Authors>
+    <Description>Code-only launcher and local importer front end for OpenBFME.</Description>
+  </PropertyGroup>
+</Project>
