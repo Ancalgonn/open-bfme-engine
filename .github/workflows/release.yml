@@ -13,6 +13,11 @@ on:
         type: choice
         options: [playtest, stable, nightly]
         default: playtest
+      run_acceptance:
+        description: "Run packaged BFME2 acceptance on the dedicated Windows runner"
+        required: true
+        type: boolean
+        default: false
   push:
     tags: ["v*"]
 
@@ -205,7 +210,7 @@ jobs:
 
   windows-vm-acceptance:
     name: clean Windows BFME2 VM acceptance
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || inputs.run_acceptance
     needs: build
     runs-on: [self-hosted, windows, x64, openbfme-release-vm]
     timeout-minutes: 120
