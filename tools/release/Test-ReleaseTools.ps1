@@ -106,6 +106,34 @@ try {
         throw "Release artifact scanner accepted personal paths or a private key."
     }
 
+    $modifiedTrustedPayload = Join-Path $temp "modified-trusted-payload"
+    [void](New-Item -ItemType Directory -Path $modifiedTrustedPayload)
+    [IO.File]::WriteAllText(
+        (Join-Path $modifiedTrustedPayload "OpenBFME.exe"),
+        "developer path C:\Users\SensitiveUser\project",
+        [Text.UTF8Encoding]::new($false)
+    )
+    $modifiedTrustedArchive = Join-Path $temp "modified-trusted.zip"
+    Compress-Archive -Path (Join-Path $modifiedTrustedPayload "*") -DestinationPath $modifiedTrustedArchive
+    $modifiedTrustedOutput = @(& powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass `
+        -File (Join-Path $PSScriptRoot "Test-ReleaseArtifact.ps1") -Path $modifiedTrustedArchive 2>&1)
+    if ($LASTEXITCODE -eq 0 -or ($modifiedTrustedOutput -join "`n") -notmatch "RELEASE_ARTIFACT_SCAN FAIL") {
+        throw "Release artifact scanner trusted a modified OpenBFME executable."
+    }
+
+    $oversizedPayload = Join-Path $temp "oversized-payload"
+    [void](New-Item -ItemType Directory -Path $oversizedPayload)
+    $oversizedFile = [IO.File]::Create((Join-Path $oversizedPayload "opaque.bin"))
+    try { $oversizedFile.SetLength(128MB + 1) }
+    finally { $oversizedFile.Dispose() }
+    $oversizedArchive = Join-Path $temp "oversized.zip"
+    Compress-Archive -Path (Join-Path $oversizedPayload "*") -DestinationPath $oversizedArchive
+    $oversizedOutput = @(& powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass `
+        -File (Join-Path $PSScriptRoot "Test-ReleaseArtifact.ps1") -Path $oversizedArchive 2>&1)
+    if ($LASTEXITCODE -eq 0 -or ($oversizedOutput -join "`n") -notmatch "oversized unscannable archive entry") {
+        throw "Release artifact scanner accepted an entry too large to inspect."
+    }
+
     # The final scanner invocation is intentionally a negative test. GitHub
     # Actions dot-sources this script and otherwise inherits that expected
     # child exit code even though every release assertion passed.

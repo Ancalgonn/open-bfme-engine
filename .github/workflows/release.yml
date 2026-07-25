@@ -146,12 +146,17 @@ jobs:
             tools/bootstrap-importer-python.ps1
           if ($LASTEXITCODE -ne 0) { throw "Failed to archive committed bundled source." }
           Expand-Archive $sourceArchive -DestinationPath $launcher
-          [ordered]@{
+          $sourceIdentity = [ordered]@{
             schema = "openbfme.bundled-source-identity"
             schemaVersion = 1
             commit = "${{ github.sha }}"
             sourceClean = $true
-          } | ConvertTo-Json | Set-Content (Join-Path $launcher "release-identity.json") -Encoding utf8
+          }
+          [IO.File]::WriteAllText(
+            (Join-Path $launcher "release-identity.json"),
+            ($sourceIdentity | ConvertTo-Json) + "`n",
+            [Text.UTF8Encoding]::new($false)
+          )
           ./tools/release/New-PinnedPythonRuntime.ps1 `
             -SourcePython (Get-Command python).Source `
             -Destination (Join-Path $launcher "python") `

@@ -41,6 +41,8 @@ try {
         previousVersion = $null
         commit = "0123456789abcdef0123456789abcdef01234567"
         previousCommit = $null
+        highestVersion = "0.0.0-test"
+        highestCommit = "0123456789abcdef0123456789abcdef01234567"
     }
     [IO.File]::WriteAllText(
         (Join-Path $root "current.json"),
